@@ -1,0 +1,27 @@
+{
+  "name": "bilinguals-unite-go",
+  "version": "1.0.0",
+  "description": "language translation game",
+  "main": "server/app.js",
+  "scripts": {
+    "start": "tsc && node server/dist/app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/damakuno/bilinguals-unite-go.git"
+  },
+  "author": "",
+  "license": "",
+  "bugs": {
+    "url": "https://github.com/damakuno/bilinguals-unite-go/issues"
+  },
+  "homepage": "https://github.com/damakuno/bilinguals-unite-go#readme",
+  "dependencies": {
+    "socket.io": "^4.3.2"
+  },
+  "devDependencies": {
+    "@types/socket.io": "^3.0.2",
+    "typescript": "^4.4.4"
+  }
+}
