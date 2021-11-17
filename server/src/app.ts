@@ -1,5 +1,5 @@
 import { Server } from "socket.io";
-import { uuid } from 'uuidv4';
+import { v4 as uuid } from 'uuid';
 import express = require('express');
 const app = express();
 const http = require('http').Server(app);
@@ -8,6 +8,8 @@ const path = require('path');
 const io: Server = require('socket.io')(http);
 const PORT: number = 3000
 
+app.use(express.json());
+
 app.get('/', (req: any, res: any) => {
   res.sendFile(path.resolve('client/index.html'));
 });
@@ -15,6 +17,12 @@ app.get('/', (req: any, res: any) => {
 app.get('/uuid', (req: any, res: any) => {
   res.setHeader('Content-Type', 'application/json');
   res.end(JSON.stringify({"uuid": uuid()}));
+});
+
+app.post('/users', (req:any, res:any) => {
+  let newid = uuid();
+  console.log(req.body);
+  console.log(newid);
 });
 
 app.use(express.static(path.resolve('client/public')))
