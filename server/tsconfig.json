@@ -3,16 +3,11 @@
       "module": "commonjs",
       "noImplicitAny": true,
       "sourceMap": true,
-      "outDir": "server/dist",
       "baseUrl": ".",
+      "outDir": "./dist/",
       "paths": {
-        "*": ["node_modules/*"]
+        "*": ["../node_modules/*"]
       }
     },
-    "include": [
-      "server/src/**/*"
-    ],
-    "exclude": [
-      "node_modules"
-    ]
-  }
+    "include": ["src/*.ts"]
+}
