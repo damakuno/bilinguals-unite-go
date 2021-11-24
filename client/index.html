@@ -8,6 +8,13 @@
 
 <body>
     <span>Enter Name:</span><input id="txt_name" type="text" placeholder="Enter Name Here..." />
+    <span>Timer Settings:</span>
+    <select id="dd_settings">
+        <option value="Seconds30">30 Second</option>
+        <option value="Seconds60">60 Seconds</option>
+        <option value="Unlimited">Unlimited</option>
+    </select>
+    <button id="btn_create" type="button">Create Game</button>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <script src="/socket.io/socket.io.js"></script>
     <script src="js/index.js" type="text/javascript"></script>

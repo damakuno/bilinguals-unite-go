@@ -1,6 +1,6 @@
 import { Server } from "socket.io";
 import { v4 as uuid } from 'uuid';
-import { DataLayer, User } from "./data";
+import { DataLayer, User, Game } from "./data";
 import express = require('express');
 const app = express();
 const http = require('http').Server(app);
@@ -25,12 +25,30 @@ dataLayer.init().then(() => {
 
   // user creation
   app.post('/users', (req: any, res: any) => {
-    let newId = uuid();    
+    let newId = uuid();
     let newUser: User = new User(newId, req.body.name);
-    console.log(newUser);
     dataLayer.addUser(newUser);
     res.setHeader('Content-Type', 'application/json');
     res.end(JSON.stringify(newUser));
+  });
+
+  app.get('/users/:uid', (req: any, res: any) => {
+    let uid = req.params.uid;
+    dataLayer.getUser(uid).then(user => {
+      res.setHeader('Content-Type', 'application/json');
+      res.end(JSON.stringify(user));
+    });
+  });
+
+  app.post('/games', (req: any, res: any) => {
+    let newId = uuid();
+    let user = req.body.user;
+    let settings = req.body.settings;
+    dataLayer.getUser(user.id).then(user => {
+      let newGame = new Game(newId, settings, user);
+      console.log(newGame);
+      dataLayer.addGame(newGame);
+    });
   });
 
   app.use(express.static(path.resolve('client/public')))
