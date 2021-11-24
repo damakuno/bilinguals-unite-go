@@ -1,5 +1,4 @@
-var socket = io();
-
+// var socket = io();
 window.onload = () => {
     const txt_name = document.querySelector('#txt_name');
     txt_name.addEventListener('keyup', (e) => {
