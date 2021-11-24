@@ -1,5 +1,6 @@
 import { Server } from "socket.io";
 import { v4 as uuid } from 'uuid';
+import { User } from "./data";
 import express = require('express');
 const app = express();
 const http = require('http').Server(app);
@@ -19,10 +20,14 @@ app.get('/uuid', (req: any, res: any) => {
   res.end(JSON.stringify({"uuid": uuid()}));
 });
 
+// user creation
 app.post('/users', (req:any, res:any) => {
-  let newid = uuid();
+  let newId = uuid();
   console.log(req.body);
-  console.log(newid);
+  let newUser: User = new User(newId, req.body.name);
+  console.log(newUser);
+  res.setHeader('Content-Type', 'application/json');
+  res.end(JSON.stringify(newUser));
 });
 
 app.use(express.static(path.resolve('client/public')))
