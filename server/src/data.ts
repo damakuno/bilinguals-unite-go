@@ -1,48 +1,65 @@
 import * as sqlite3 from 'sqlite3';
 import { ISqlite, open } from 'sqlite';
+import * as pgPromise from 'pg-promise';
+import { IInitOptions, IDatabase, IMain } from 'pg-promise';
+import * as dotenv from "dotenv";
+import { IConnectionParameters, IClient } from 'pg-promise/typescript/pg-subset';
+dotenv.config();
+
+const pgp: IMain = pgPromise();
 
 export class DataLayer {
-    config: ISqlite.Config
+    config: IConnectionParameters<IClient>;
+    db: pgPromise.IDatabase<{}, IClient>;
     constructor() {
-        this.config = { filename: 'server/db/main.db', driver: sqlite3.Database };
+        this.config = {
+            host: process.env.DB_HOST,
+            port: parseInt(process.env.DB_PORT),
+            database: process.env.DB_NAME,
+            user: process.env.DB_USER,
+            password: process.env.DB_PASSWORD
+        };
+        this.db = pgp(this.config);
     }
     init(): Promise<void> {
         return new Promise((resolve, reject) => {
-            open(this.config).then((db) => {
-                db.exec(`
-                CREATE TABLE IF NOT EXISTS User (id TEXT, name TEXT, created TEXT);
-                CREATE TABLE IF NOT EXISTS Game (id TEXT, round INT, createdBy TEXT, settings TEXT, status TEXT, created TEXT);
+            this.db.none(`
+                CREATE TABLE IF NOT EXISTS public.user (id TEXT, name TEXT, created TIMESTAMP);
+                CREATE TABLE IF NOT EXISTS public.game (id TEXT, round INT, createdby TEXT, settings JSON, status TEXT, created TIMESTAMP);
                 `)
-                    .then(() => { resolve() }).catch((err) => reject(err));
-            }).catch((err) => reject(err));
+                .then(() => { resolve() }).catch((err) => reject(err));
         });
     }
     addUser(user: User): Promise<void> {
         return new Promise((resolve, reject) => {
-            open(this.config).then((db) => {
-                db.run(`INSERT INTO User (id, name, created) VALUES(?, ?, ?)`,
-                    user.id, user.name, user.created.toISOString())
-                    .then(() => { resolve() }).catch((err) => reject(err));
-            }).catch((err) => reject(err));
+            this.db.none(`INSERT INTO public.user (id, name, created) VALUES($1, $2, $3)`,
+                [user.id, user.name, user.created.toISOString()])
+                .then(() => { resolve() }).catch((err) => reject(err));
         });
     }
     getUser(id: string): Promise<User> {
         return new Promise((resolve, reject) => {
-            open(this.config).then((db) => {
-                db.get(`SELECT id, name, created FROM User WHERE id = ?`, id)
-                    .then((result) => {
-                        resolve(new User(result.id, result.name, result.created))
-                    }).catch((err) => reject(err));
-            }).catch((err) => reject(err));
+            this.db.one(`SELECT id, name, created FROM public.user WHERE id = $1`, id)
+                .then((result) => {
+                    resolve(new User(result.id, result.name, result.created));
+                }).catch((err) => reject(err));
         });
     }
     addGame(game: Game): Promise<void> {
         return new Promise((resolve, reject) => {
-            open(this.config).then((db) => {
-                db.run(`INSERT INTO Game (id, round, createdBy, settings, status, created) VALUES(?, ?, ?, ?, ?, ?)`,
-                    game.id, game.round, game.createdBy.id, JSON.stringify(game.settings), game.status, game.created.toISOString())
-                    .then(() => { resolve() }).catch((err) => reject(err));
-            }).catch((err) => reject(err));
+            this.db.none(`INSERT INTO public.game (id, round, createdby, settings, status, created) VALUES($1, $2, $3, $4, $5, $6)`,
+                [game.id, game.round, game.createdBy.id, JSON.stringify(game.settings), game.status, game.created.toISOString()])
+                .then(() => { resolve() }).catch((err) => reject(err));
+        });
+    }
+    getGame(id: string): Promise<Game> {
+        return new Promise((resolve, reject) => {
+            this.db.one(`SELECT id, round, createdby, settings, status, created FROM public.game WHERE id = $1`, id)
+                .then((result) => {
+                    this.getUser(result.createdby).then(user => {
+                        resolve(new Game(result.id, result.settings, user, result.status, result.round, result.created));
+                    });                    
+                }).catch((err) => reject(err));
         });
     }
 }

@@ -18,6 +18,10 @@ dataLayer.init().then(() => {
     res.sendFile(path.resolve('client/index.html'));
   });
 
+  app.get('/game/', (req: any, res: any) => {
+    res.sendFile(path.resolve('client/game.html'));
+  });
+
   app.get('/uuid', (req: any, res: any) => {
     res.setHeader('Content-Type', 'application/json');
     res.end(JSON.stringify({ "uuid": uuid() }));
@@ -27,7 +31,7 @@ dataLayer.init().then(() => {
   app.post('/users', (req: any, res: any) => {
     let newId = uuid();
     let newUser: User = new User(newId, req.body.name);
-    dataLayer.addUser(newUser);
+    dataLayer.addUser(newUser).catch(err => console.error(err));
     res.setHeader('Content-Type', 'application/json');
     res.end(JSON.stringify(newUser));
   });
@@ -37,7 +41,7 @@ dataLayer.init().then(() => {
     dataLayer.getUser(uid).then(user => {
       res.setHeader('Content-Type', 'application/json');
       res.end(JSON.stringify(user));
-    });
+    }).catch(err => console.error(err));
   });
 
   app.post('/games', (req: any, res: any) => {
@@ -48,8 +52,16 @@ dataLayer.init().then(() => {
       let newGame = new Game(newId, settings, user);
       console.log(newGame);
       dataLayer.addGame(newGame);
-    });
+    }).catch(err => console.error(err));
   });
+
+  app.get('/games/:gid', (req: any, res: any) => {
+    let gid = req.params.gid;
+    dataLayer.getGame(gid).then(game => {
+      res.setHeader('Content-Type', 'application/json');
+      res.end(JSON.stringify(game));
+    }).catch(err => console.error(err));
+  });  
 
   app.use(express.static(path.resolve('client/public')))
 
@@ -61,6 +73,9 @@ dataLayer.init().then(() => {
       console.log(`A user disconnected with id: ${socket.id}`);
     });
   });
+  // TODO: emit join room events
+  // TODO: emit user list
+  // TODO: sync server user list with client user list using io
 
   http.listen(3000, () => {
     console.log('listening on *:3000');
