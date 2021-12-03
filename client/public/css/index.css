@@ -1,3 +1,15 @@
 * {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
+.hidden {
+  display: none;
+}
+
+.canfade {
+    opacity: 1;
+    transition: opacity 1s; 
+  }
+  
+  .canfade.fade {
+    opacity: 0;
+  }

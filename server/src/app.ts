@@ -18,7 +18,7 @@ dataLayer.init().then(() => {
     res.sendFile(path.resolve('client/index.html'));
   });
 
-  app.get('/game/', (req: any, res: any) => {
+  app.get('/game', (req: any, res: any) => {
     res.sendFile(path.resolve('client/game.html'));
   });
 
@@ -50,8 +50,9 @@ dataLayer.init().then(() => {
     let settings = req.body.settings;
     dataLayer.getUser(user.id).then(user => {
       let newGame = new Game(newId, settings, user);
-      console.log(newGame);
       dataLayer.addGame(newGame);
+      res.setHeader('Content-Type', 'application/json');
+      res.end(JSON.stringify(newGame));
     }).catch(err => console.error(err));
   });
 

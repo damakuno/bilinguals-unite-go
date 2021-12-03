@@ -62,6 +62,7 @@ export class DataLayer {
                 }).catch((err) => reject(err));
         });
     }
+    // TODO: getUserList(gameId: string)
 }
 
 export class User {
