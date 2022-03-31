@@ -1,5 +1,3 @@
-import * as sqlite3 from 'sqlite3';
-import { ISqlite, open } from 'sqlite';
 import * as pgPromise from 'pg-promise';
 import { IInitOptions, IDatabase, IMain } from 'pg-promise';
 import * as dotenv from "dotenv";
@@ -13,11 +11,8 @@ export class DataLayer {
     db: pgPromise.IDatabase<{}, IClient>;
     constructor() {
         this.config = {
-            host: process.env.DB_HOST,
-            port: parseInt(process.env.DB_PORT),
-            database: process.env.DB_NAME,
-            user: process.env.DB_USER,
-            password: process.env.DB_PASSWORD
+	    connectionString: process.env.DATABASE_URL,
+	    ssl: { rejectUnauthorized: false }
         };
         this.db = pgp(this.config);
     }
